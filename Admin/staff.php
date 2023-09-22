@@ -138,6 +138,8 @@ if (isset($_POST['btn_save2'])) {
 
 
 
+
+
 <!--*********************** PHP code end from here for data insertion into database ******************************* -->
 
 
@@ -166,6 +168,7 @@ if (isset($_POST['btn_save2'])) {
 
 				</div>
 			</div>
+			
 			<div class="row w-100">
 				<div class=" col-lg-6 col-md-6 col-sm-12 mt-1 ">
 					<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -394,8 +397,7 @@ if (isset($_POST['btn_save2'])) {
 					<section class="mt-3">
 						<div class="row">
 							<div class="col-md-3 offset-9 pt-5 mb-2">
-								<!-- Large modal -->
-								<!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg1">Assign Courses</button> -->
+								
 								<div class="modal fade bd-example-modal-lg1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
 									<div class="modal-dialog modal-lg">
 										<div class="modal-content">
@@ -501,7 +503,7 @@ if (isset($_POST['btn_save2'])) {
 								echo "<td>" . $row["current_address"] . "</td>";
 								echo "<td>" . $row["hire_date"] . "</td>";
 								echo "<td>" . $row["email"] . "</td>";
-								echo	"<td width='170'><a class='btn btn-primary' href=display-staff.php?teacher_id=" . $row['teacher_id'] . ">Profile</a> <a class='btn btn-danger' href=delete-function.php?teacher_id=" . $row['teacher_id'] . ">Delete</a></td>";
+								echo	"<td width='170'><a class='btn btn-primary' href=display-staff.php?teacher_id=" . $row['teacher_id'] . ">Profile</a>  <a class='btn btn-danger' href='javascript:void(0);' onclick='confirmDelete(" . $row['teacher_id'] . ")'>Delete</a></td>";
 								echo "</tr>";
 							}
 							?>
@@ -511,6 +513,13 @@ if (isset($_POST['btn_save2'])) {
 			</div>
 		</div>
 	</main>
+	<script>
+    function confirmDelete(teacher_id) {
+        if (confirm("Are you sure you want to delete this staff member?")) {
+            window.location.href = 'delete-function.php?teacher_id=' + teacher_id;
+        }
+    }
+    </script>
 
 
 	<script type="text/javascript" src="../bootstrap/js/jquery.min.js"></script>
