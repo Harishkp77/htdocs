@@ -162,422 +162,451 @@ if (isset($_POST['btn_save2'])) {
 				<div>
 					<!-- Search Teacher Form -->
 					<form action="" method="POST" class="form-inline mt-3">
-						<label class="sr-only" for="teacherId">Enter Teacher ID:</label>
-						<input type="text" class="form-control mb-2 mr-sm-2" id="teacherId" name="teacher_id" placeholder="Enter Teacher ID" required>
+						<div class="form-group">
+							<label for="searchCriteria">Search By:</label>
+							<select class="form-control mx-2" id="searchCriteria" name="search_criteria">
+								<option value="id">ID</option>
+								<option value="first_name">First Name</option>
+							</select>
+						</div>
+
+						<input type="text" class="form-control mb-2 mr-sm-2" id="searchInput" name="search_input" placeholder="Enter ID or First Name" required>
 
 						<button type="submit" class="btn btn-primary mb-2" name="search_teacher">Search</button>
 					</form>
+					<?php
+					require_once "../connection/connection.php"; // Include your database connection file
 
+					if (isset($_POST['search_teacher'])) {
+						$searchCriteria = $_POST['search_criteria'];
+						$searchInput = $_POST['search_input'];
 
-					<!-- Display Teacher Edit Form -->
-					<div id="updateMessage" class="mt-3">
-						<?php
-						// Check if the search form is submitted
-						if (isset($_POST['search_teacher'])) {
-							$teacher_id = $_POST['teacher_id'];
+						// Validate and sanitize the user input
+						$searchCriteria = mysqli_real_escape_string($con, $searchCriteria);
+						$searchInput = mysqli_real_escape_string($con, trim($searchInput)); // Trim whitespace
 
-							// Query the database to retrieve teacher details by teacher ID
-							$query = "SELECT * FROM teacher_info WHERE teacher_id = '$teacher_id'";
-							$result = mysqli_query($con, $query);
-
-							if ($result && mysqli_num_rows($result) > 0) {
-								$teacherData = mysqli_fetch_assoc($result);
-							} else {
-								echo "Teacher not found.";
-							}
+						if ($searchCriteria === 'id') {
+							// Search by ID
+							$query = "SELECT * FROM teacher_info WHERE teacher_id = '$searchInput'";
+						} elseif ($searchCriteria === 'first_name') {
+							// Search by first name (case-insensitive)
+							$query = "SELECT * FROM teacher_info WHERE LOWER(first_name) LIKE LOWER('%$searchInput%')";
 						}
 
-						// Check if the edit form is submitted
-						if (isset($_POST['edit_teacher'])) {
-							$teacher_id = $_POST['teacher_id'];
-							$first_name = $_POST['first_name'];
-							// Add more fields for other details
+						// Execute the query and fetch results
+						$result = mysqli_query($con, $query);
 
-							// Query to update teacher details
-							$query = "UPDATE teacher_info SET first_name = '$first_name' WHERE teacher_id = '$teacher_id'";
-
-							// Execute the query
-							$result = mysqli_query($con, $query);
-
-							if ($result) {
-								echo "Teacher details updated successfully.";
+						if ($result) {
+							// Check if any results were found
+							if (mysqli_num_rows($result) > 0) {
+								// Loop through the results and display them
+								while ($row = mysqli_fetch_assoc($result)) {
+									// Display teacher details here
+									echo "Teacher ID: " . $row['teacher_id'] . "<br>";
+									echo "First Name: " . $row['first_name'] . "<br>";
+									// Add more fields for other details
+									// ...
+								}
 							} else {
-								echo "Error updating teacher details: " . mysqli_error($con);
+								echo "No matching records found.";
 							}
+						} else {
+							echo "Error executing query: " . mysqli_error($con);
 						}
-						?>
+					}
+					?>
 
-						<?php if (isset($teacherData)) { ?>
-							<div id="editTeacherSection">
-								<h2>Teacher Details</h2>
-								<form action="" method="POST">
-									<!-- Display teacher details here -->
-									<div class="form-group">
-										<label for="firstName">First Name:</label>
-										<input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
-									</div>
-									<!-- Add more fields for other details -->
-									<!-- ... -->
-									<input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
-									<button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
-									<button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
-								</form>
-							</div>
-						<?php } ?>
-					</div>
-					<!-- Teacher Details Display -->
-					<div id="teacherDetails" style="display: none;">
-						<form action="update-teacher.php" method="POST" style="display: none;">
+					<?php
+					if (isset($_POST['edit_teacher'])) {
+						$teacher_id = $_POST['teacher_id'];
+						$first_name = $_POST['first_name'];
+						// Add more fields for other details
+
+						// Query to update teacher details
+						$query = "UPDATE teacher_info SET first_name = '$first_name' WHERE teacher_id = '$teacher_id'";
+
+						// Execute the query
+						$result = mysqli_query($con, $query);
+
+						if ($result) {
+							echo "Teacher details updated successfully.";
+						} else {
+							echo "Error updating teacher details: " . mysqli_error($con);
+						}
+					}
+					?>
+
+					<?php if (isset($teacherData)) { ?>
+						<div id="editTeacherSection">
 							<h2>Teacher Details</h2>
-							<div class="form-group">
-								<label for="firstName">First Name:</label>
-								<input type="text" class="form-control" id="firstName" name="first_name">
-							</div>
-							<!-- Add more fields for other details -->
-							<!-- ... -->
-							<button type="submit" class="btn btn-primary">Save Changes</button>
-						</form>
-					</div>
-					<div class="row w-100">
-						<div class=" col-lg-6 col-md-6 col-sm-12 mt-1 ">
-							<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-								<div class="modal-dialog modal-lg">
-									<div class="modal-content">
-										<div class="modal-header text-white" style="background-color:#010738;">
-											<h4 class="modal-title text-center">Add New Staff</h4>
-										</div>
-										<div class="modal-body">
-											<form action="staff.php" method="post" enctype="multipart/form-data">
-												<div class="row mt-3">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">First Name: </label>
-															<input type="text" name="first_name" class="form-control" required="" placeholder="First Name">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Middle Name: </label>
-															<input type="text" name="middle_name" class="form-control" required="" placeholder="Middle Name">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Last Name: </label>
-															<input type="text" name="last_name" class="form-control" required="" placeholder="Last Name">
-														</div>
-													</div>
-												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Staff Email:</label>
-															<input type="text" name="email" class="form-control" required="" placeholder="Enter Email">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Mobile No</label>
-															<input type="number" name="phone_no" class="form-control" placeholder="Enter Mobile Number">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Select Your Profile </label>
-															<input type="file" name="profile_image" class="form-control">
-														</div>
+							<form action="" method="POST">
+								<!-- Display teacher details here -->
+								<div class="form-group">
+									<label for="firstName">First Name:</label>
+									<input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
+								</div>
+								<!-- Add more fields for other details -->
+								<!-- ... -->
+								<input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
+								<button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
+								<button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+							</form>
+						</div>
+					<?php } ?>
+				</div>
+				<!-- Teacher Details Display -->
+				<div id="teacherDetails" style="display: none;">
+					<form action="update-teacher.php" method="POST" style="display: none;">
+						<h2>Teacher Details</h2>
+						<div class="form-group">
+							<label for="firstName">First Name:</label>
+							<input type="text" class="form-control" id="firstName" name="first_name">
+						</div>
+						<!-- Add more fields for other details -->
+						<!-- ... -->
+						<button type="submit" class="btn btn-primary">Save Changes</button>
+					</form>
+				</div>
+				<div class="row w-100">
+					<div class=" col-lg-6 col-md-6 col-sm-12 mt-1 ">
+						<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+							<div class="modal-dialog modal-lg">
+								<div class="modal-content">
+									<div class="modal-header text-white" style="background-color:#010738;">
+										<h4 class="modal-title text-center">Add New Staff</h4>
+									</div>
+									<div class="modal-body">
+										<form action="staff.php" method="post" enctype="multipart/form-data">
+											<div class="row mt-3">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">First Name: </label>
+														<input type="text" name="first_name" class="form-control" required="" placeholder="First Name">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Staff Status: </label>
-															<select class="browser-default custom-select" name="teacher_status">
-																<option selected>Select Status</option>
-																<option value="Permanent">Permanent</option>
-																<option value="Contract">Contract</option>
-															</select>
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Application Status:</label>
-															<select class="browser-default custom-select" name="application_status">
-																<option>Select Status</option>
-																<option value="Yes">Yes</option>
-																<option value="No">No</option>
-															</select>
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">CNIC No:</label>
-															<input type="text" name="cnic" class="form-control" placeholder="Cnic No">
-														</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Middle Name: </label>
+														<input type="text" name="middle_name" class="form-control" required="" placeholder="Middle Name">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Date of Birth: </label>
-															<input type="date" name="dob" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Other Phone:</label>
-															<input type="number" name="other_phone" class="form-control" placeholder="Other Phone No">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Gender:</label>
-															<select class="browser-default custom-select" name="gender">
-																<option selected>Select Gender</option>
-																<option value="Male">Male</option>
-																<option value="Female">Female</option>
-															</select>
-														</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Last Name: </label>
+														<input type="text" name="last_name" class="form-control" required="" placeholder="Last Name">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Permanent Address: </label>
-															<input type="text" name="permanent_address" class="form-control" placeholder="Enter Permanent Address">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Current Address:</label>
-															<input type="text" name="current_address" class="form-control" placeholder="Enter Current Address">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Place of Birth:</label>
-															<input type="text" name="place_of_birth" class="form-control" placeholder="Enter Place of Birth">
-														</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Staff Email:</label>
+														<input type="text" name="email" class="form-control" required="" placeholder="Enter Email">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">Matric/OLevel Complition Date: </label>
-															<input type="date" name="matric_complition_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Matric/OLevel Awarded Date:</label>
-															<input type="date" name="matric_awarded_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Upload Matric/OLevel Certificate:</label>
-															<input type="file" name="matric_certificate" class="form-control">
-														</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Mobile No</label>
+														<input type="number" name="phone_no" class="form-control" placeholder="Enter Mobile Number">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">FA/ALevel Complition Date: </label>
-															<input type="date" name="fa_complition_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">FA/ALevel Awarded Date:</label>
-															<input type="date" name="fa_awarded_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Upload FA/ALevel Certificate:</label>
-															<input type="file" name="fa_certificate" class="form-control">
-														</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Select Your Profile </label>
+														<input type="file" name="profile_image" class="form-control">
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">BA Complition Date: </label>
-															<input type="date" name="ba_complition_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">BA Awarded Date:</label>
-															<input type="date" name="ba_awarded_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Upload BA Certificate:</label>
-															<input type="file" name="ba_certificate" class="form-control">
-														</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Staff Status: </label>
+														<select class="browser-default custom-select" name="teacher_status">
+															<option selected>Select Status</option>
+															<option value="Permanent">Permanent</option>
+															<option value="Contract">Contract</option>
+														</select>
 													</div>
 												</div>
-												<div class="row">
-													<div class="col-md-4">
-														<div class="form-group">
-															<label for="exampleInputEmail1">MA Complition Date: </label>
-															<input type="date" name="ma_complition_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">MA Awarded Date:</label>
-															<input type="date" name="ma_awarded_date" class="form-control">
-														</div>
-													</div>
-													<div class="col-md-4">
-														<div class="formp">
-															<label for="exampleInputPassword1">Upload MA Certificate:</label>
-															<input type="file" name="ma_certificate" class="form-control">
-														</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Application Status:</label>
+														<select class="browser-default custom-select" name="application_status">
+															<option>Select Status</option>
+															<option value="Yes">Yes</option>
+															<option value="No">No</option>
+														</select>
 													</div>
 												</div>
-												<!-- _________________________________________________________________________________
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">CNIC No:</label>
+														<input type="text" name="cnic" class="form-control" placeholder="Cnic No">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Date of Birth: </label>
+														<input type="date" name="dob" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Other Phone:</label>
+														<input type="number" name="other_phone" class="form-control" placeholder="Other Phone No">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Gender:</label>
+														<select class="browser-default custom-select" name="gender">
+															<option selected>Select Gender</option>
+															<option value="Male">Male</option>
+															<option value="Female">Female</option>
+														</select>
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Permanent Address: </label>
+														<input type="text" name="permanent_address" class="form-control" placeholder="Enter Permanent Address">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Current Address:</label>
+														<input type="text" name="current_address" class="form-control" placeholder="Enter Current Address">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Place of Birth:</label>
+														<input type="text" name="place_of_birth" class="form-control" placeholder="Enter Place of Birth">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">Matric/OLevel Complition Date: </label>
+														<input type="date" name="matric_complition_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Matric/OLevel Awarded Date:</label>
+														<input type="date" name="matric_awarded_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Upload Matric/OLevel Certificate:</label>
+														<input type="file" name="matric_certificate" class="form-control">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">FA/ALevel Complition Date: </label>
+														<input type="date" name="fa_complition_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">FA/ALevel Awarded Date:</label>
+														<input type="date" name="fa_awarded_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Upload FA/ALevel Certificate:</label>
+														<input type="file" name="fa_certificate" class="form-control">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">BA Complition Date: </label>
+														<input type="date" name="ba_complition_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">BA Awarded Date:</label>
+														<input type="date" name="ba_awarded_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Upload BA Certificate:</label>
+														<input type="file" name="ba_certificate" class="form-control">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label for="exampleInputEmail1">MA Complition Date: </label>
+														<input type="date" name="ma_complition_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">MA Awarded Date:</label>
+														<input type="date" name="ma_awarded_date" class="form-control">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="formp">
+														<label for="exampleInputPassword1">Upload MA Certificate:</label>
+														<input type="file" name="ma_certificate" class="form-control">
+													</div>
+												</div>
+											</div>
+											<!-- _________________________________________________________________________________
 																				Hidden Values are here
 											_________________________________________________________________________________ -->
-												<div>
-													<input type="hidden" name="password" value="teacher123*">
-													<input type="hidden" name="role" value="Staff">
-												</div>
-												<!-- _________________________________________________________________________________
+											<div>
+												<input type="hidden" name="password" value="teacher123*">
+												<input type="hidden" name="role" value="Staff">
+											</div>
+											<!-- _________________________________________________________________________________
 																				Hidden Values are end here
 											_________________________________________________________________________________ -->
-												<div class="modal-footer">
-													<input type="submit" class="btn btn-primary" name="btn_save" value="Save">
-													<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-												</div>
-											</form>
-										</div>
+											<div class="modal-footer">
+												<input type="submit" class="btn btn-primary" name="btn_save" value="Save">
+												<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+											</div>
+										</form>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-					<div class="row w-100">
-						<div class="col-md-12 ml-2">
-							<section class="mt-3">
-								<div class="row">
-									<div class="col-md-3 offset-9 pt-5 mb-2">
-										<div class="modal fade bd-example-modal-lg1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-											<div class="modal-dialog modal-lg">
-												<div class="modal-content">
-													<div class="modal-header text-white" style="background-color:#010738;">
-														<h4 class="modal-title text-center">Assign Courses To Staffs</h4>
-													</div>
-													<div class="modal-body">
-														<form action="staff.php" method="POST" enctype="multipart/form-data">
-															<div class="row mt-3">
-																<div class="col-md-6">
-																	<div class="form-group">
-																		<label for="exampleInputEmail1">Select Department:*</label>
-																		<select class="browser-default custom-select" name="course_code" required="">
-																			<option>Select Department</option>
-																			<?php
-																			$query = "SELECT course_code, course_name FROM courses";
-																			$result = mysqli_query($con, $query);
-																			while ($row = mysqli_fetch_assoc($result)) {
-																				echo '<option value="' . $row['course_code'] . '">' . $row['course_name'] . '</option>';
-																			}
-																			?>
-																		</select>
-																	</div>
-																</div>
-																<div class="col-md-6">
-																	<div class="form-group">
-																		<label for="exampleInputPassword1" required>Enter Semester:*</label>
-																		<input type="text" name="semester" class="form-control">
-																	</div>
+				</div>
+				<div class="row w-100">
+					<div class="col-md-12 ml-2">
+						<section class="mt-3">
+							<div class="row">
+								<div class="col-md-3 offset-9 pt-5 mb-2">
+									<div class="modal fade bd-example-modal-lg1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+										<div class="modal-dialog modal-lg">
+											<div class="modal-content">
+												<div class="modal-header text-white" style="background-color:#010738;">
+													<h4 class="modal-title text-center">Assign Courses To Staffs</h4>
+												</div>
+												<div class="modal-body">
+													<form action="staff.php" method="POST" enctype="multipart/form-data">
+														<div class="row mt-3">
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label for="exampleInputEmail1">Select Department:*</label>
+																	<select class="browser-default custom-select" name="course_code" required="">
+																		<option>Select Department</option>
+																		<?php
+																		$query = "SELECT course_code, course_name FROM courses";
+																		$result = mysqli_query($con, $query);
+																		while ($row = mysqli_fetch_assoc($result)) {
+																			echo '<option value="' . $row['course_code'] . '">' . $row['course_name'] . '</option>';
+																		}
+																		?>
+																	</select>
 																</div>
 															</div>
-															<div class="row">
-																<div class="col-md-6">
-																	<div class="form-group">
-																		<label for="exampleInputPassword1">Enter Staff ID:*</label>
-																		<select class="browser-default custom-select" name="teacher_id" required="">
-																			<option>Select Staff ID</option>
-																			<?php
-																			$query = "SELECT teacher_id FROM teacher_info";
-																			$result = mysqli_query($con, $query);
-																			while ($row = mysqli_fetch_assoc($result)) {
-																				echo '<option value="' . $row['teacher_id'] . '">' . $row['teacher_id'] . '</option>';
-																			}
-																			?>
-																		</select>
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label for="exampleInputPassword1" required>Enter Semester:*</label>
+																	<input type="text" name="semester" class="form-control">
+																</div>
+															</div>
+														</div>
+														<div class="row">
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label for="exampleInputPassword1">Enter Staff ID:*</label>
+																	<select class="browser-default custom-select" name="teacher_id" required="">
+																		<option>Select Staff ID</option>
+																		<?php
+																		$query = "SELECT teacher_id FROM teacher_info";
+																		$result = mysqli_query($con, $query);
+																		while ($row = mysqli_fetch_assoc($result)) {
+																			echo '<option value="' . $row['teacher_id'] . '">' . $row['teacher_id'] . '</option>';
+																		}
+																		?>
+																	</select>
 
-																	</div>
-																</div>
-																<div class="col-md-6">
-																	<div class="form-group">
-																		<label for="exampleInputPassword1">Please Select Courses:*</label>
-																		<select class="browser-default custom-select" name="subject_code" required="">
-																			<option>Select Courses</option>
-																			<?php
-																			$query = "SELECT subject_code FROM time_table";
-																			$result = mysqli_query($con, $query);
-																			while ($row = mysqli_fetch_assoc($result)) {
-																				echo '<option value="' . $row['subject_code'] . '">' . $row['subject_code'] . '</option>';
-																			}
-																			?>
-																		</select>
-																	</div>
 																</div>
 															</div>
-															<div class="row">
-																<div class="col-md-6">
-																	<div class="form-group">
-																		<label for="exampleInputPassword1">Enter Total Classes:*</label>
-																		<input type="text" name="total_classes" class="form-control" required>
-																	</div>
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label for="exampleInputPassword1">Please Select Courses:*</label>
+																	<select class="browser-default custom-select" name="subject_code" required="">
+																		<option>Select Courses</option>
+																		<?php
+																		$query = "SELECT subject_code FROM time_table";
+																		$result = mysqli_query($con, $query);
+																		while ($row = mysqli_fetch_assoc($result)) {
+																			echo '<option value="' . $row['subject_code'] . '">' . $row['subject_code'] . '</option>';
+																		}
+																		?>
+																	</select>
 																</div>
 															</div>
-															<div class="modal-footer">
-																<input type="submit" class="btn btn-primary" name="btn_save2" value="Save">
-																<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+														</div>
+														<div class="row">
+															<div class="col-md-6">
+																<div class="form-group">
+																	<label for="exampleInputPassword1">Enter Total Classes:*</label>
+																	<input type="text" name="total_classes" class="form-control" required>
+																</div>
 															</div>
-														</form>
-													</div>
+														</div>
+														<div class="modal-footer">
+															<input type="submit" class="btn btn-primary" name="btn_save2" value="Save">
+															<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+														</div>
+													</form>
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
+							</div>
 
-								<table class="w-100 table-elements mb-5 table-three-tr" cellpadding="10">
-									<tr class="table-tr-head table-three text-white">
-										<th>Staff ID</th>
-										<th>Staff Name</th>
-										<th>Current Address</th>
-										<th>Hire Date</th>
-										<th>Email</th>
-										<th>Operations</th>
-									</tr>
-									<?php
-									$query = "select teacher_id,first_name,middle_name,last_name,current_address,ma_certificate,hire_date,email from teacher_info";
-									$run = mysqli_query($con, $query);
-									while ($row = mysqli_fetch_array($run)) {
-										echo "<tr>";
-										echo "<td>" . $row["teacher_id"] . "</td>";
-										echo "<td>" . $row["first_name"] . " " . $row["middle_name"] . " " . $row["last_name"] . "</td>";
-										echo "<td>" . $row["current_address"] . "</td>";
-										echo "<td>" . $row["hire_date"] . "</td>";
-										echo "<td>" . $row["email"] . "</td>";
-										echo	"<td width='170'><a class='btn btn-primary' href=display-staff.php?teacher_id=" . $row['teacher_id'] . ">Profile</a>  <a class='btn btn-danger' href='javascript:void(0);' onclick='confirmDelete(" . $row['teacher_id'] . ")'>Delete</a></td>";
-										echo "</tr>";
-									}
-									?>
-								</table>
-							</section>
-						</div>
+							<table class="w-100 table-elements mb-5 table-three-tr" cellpadding="10">
+								<tr class="table-tr-head table-three text-white">
+									<th>Staff ID</th>
+									<th>Staff Name</th>
+									<th>Current Address</th>
+									<th>Hire Date</th>
+									<th>Email</th>
+									<th>Operations</th>
+								</tr>
+								<?php
+								$query = "select teacher_id,first_name,middle_name,last_name,current_address,ma_certificate,hire_date,email from teacher_info";
+								$run = mysqli_query($con, $query);
+								while ($row = mysqli_fetch_array($run)) {
+									echo "<tr>";
+									echo "<td>" . $row["teacher_id"] . "</td>";
+									echo "<td>" . $row["first_name"] . " " . $row["middle_name"] . " " . $row["last_name"] . "</td>";
+									echo "<td>" . $row["current_address"] . "</td>";
+									echo "<td>" . $row["hire_date"] . "</td>";
+									echo "<td>" . $row["email"] . "</td>";
+									echo	"<td width='170'><a class='btn btn-primary' href=display-staff.php?teacher_id=" . $row['teacher_id'] . ">Profile</a>  <a class='btn btn-danger' href='javascript:void(0);' onclick='confirmDelete(" . $row['teacher_id'] . ")'>Delete</a></td>";
+									echo "</tr>";
+								}
+								?>
+							</table>
+						</section>
 					</div>
-				</div>
+				</div> 
+			</div>
 	</main>
 	<script>
 		function confirmDelete(teacher_id) {
