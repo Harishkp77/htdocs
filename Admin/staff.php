@@ -155,223 +155,106 @@ if (isset($_POST['btn_save2'])) {
 <html lang="en">
 
 <head>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 	<title>Admin - Register Staff</title>
 </head>
+
 <body>
 	<?php include('../common/common-header.php') ?>
 	<?php include('../common/admin-sidebar.php') ?>
 	<main role="main" class="col-xl-10 col-lg-9 col-md-8 ml-sm-auto px-md-4 mb-2 w-100">
-		<div class="sub-main">
-			<div class="text-center d-flex flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 text-white admin-dashboard pl-3">
-				<div class="d-flex">
-					<h4 class="mr-5">Staff Management System</h4>
-					<!-- Large modal for Add Staff -->
-					<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Add Staff</button>
-					<span style="margin-right: 10px;"></span>
-					<!-- Large modal for Assign Courses -->
-					<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg1">Assign Courses</button>
-				</div>
-			</div>
-			<div>
-				<div>
-					<!-- Search Teacher Form -->
-					<form action="" method="POST">
+        <div class="sub-main">
+            <div class="text-center d-flex flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 text-white admin-dashboard pl-3">
+                <div class="d-flex">
+                    <h4 class="mr-5">Staff Management System</h4>
+                    <!-- Large modal for Add Staff -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Add Staff</button>
+                    <span style="margin-right: 10px;"></span>
+                    <!-- Large modal for Assign Courses -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg1">Assign Courses</button>
+                </div>
+            </div>
+            <div>
+                <div>
+                    <!-- Search Teacher Form -->
+                    <form action="" method="POST">
                         <div class="form-group">
                             <label for="teacherId">Enter Teacher ID:</label>
                             <input type="text" class="form-control" id="teacherId" name="teacher_id" placeholder="Enter Teacher ID" required>
                         </div>
-                        <button type="button" class="btn btn-primary" id="searchButton">Search</button>
+                        <button type="submit" class="btn btn-primary" name="search_teacher">Search</button>
                     </form>
+                    
+                    <!-- Display Teacher Edit Form -->
+                    <div id="updateMessage" class="mt-3">
+                        <?php
+                        // Check if the search form is submitted
+                        if (isset($_POST['search_teacher'])) {
+                            $teacher_id = $_POST['teacher_id'];
 
-					<!-- Display Teacher Edit Form -->
-					<div id="updateMessage" class="mt-3">
-						<?php
-						// Check if the search form is submitted
-						if (isset($_POST['search_teacher'])) {
-							$teacher_id = $_POST['teacher_id'];
+                            // Query the database to retrieve teacher details by teacher ID
+                            $query = "SELECT * FROM teacher_info WHERE teacher_id = '$teacher_id'";
+                            $result = mysqli_query($con, $query);
 
-							// Query the database to retrieve teacher details by teacher ID
-							$query = "SELECT * FROM teacher_info WHERE teacher_id = '$teacher_id'";
-							$result = mysqli_query($con, $query);
+                            if ($result && mysqli_num_rows($result) > 0) {
+                                $teacherData = mysqli_fetch_assoc($result);
+                            } else {
+                                echo "Teacher not found.";
+                            }
+                        }
 
-							if ($result && mysqli_num_rows($result) > 0) {
-								$teacherData = mysqli_fetch_assoc($result);
-							} else {
-								echo "Teacher not found.";
-							}
-						}
+                        // Check if the edit form is submitted
+                        if (isset($_POST['edit_teacher'])) {
+                            $teacher_id = $_POST['teacher_id'];
+                            $first_name = $_POST['first_name'];
+                            // Add more fields for other details
 
-						// Check if the edit form is submitted
-						if (isset($_POST['edit_teacher'])) {
-							$teacher_id = $_POST['teacher_id'];
-							$first_name = $_POST['first_name'];
-							$middle_name = $_POST['middle_name'];
-							$last_name = $_POST['last_name'];
-							$email = $_POST['email'];
-							$phone_no = $_POST['phone_no'];
-							$teacher_status = $_POST['teacher_status'];
-							$application_status = $_POST['application_status'];
-							$cnic = $_POST['cnic'];
-							$dob = $_POST['dob'];
-							$other_phone = $_POST['other_phone'];
-							$gender = $_POST['gender'];
-							$permanent_address = $_POST['permanent_address'];
-							$current_address = $_POST['current_address'];
-							$place_of_birth = $_POST['place_of_birth'];
-							$matric_complition_date = $_POST['matric_complition_date'];
-							$matric_awarded_date = $_POST['matric_awarded_date'];
-							$fa_complition_date = $_POST['fa_complition_date'];
-							$fa_awarded_date = $_POST['fa_awarded_date'];
-							$ba_complition_date = $_POST['ba_complition_date'];
-							$ba_awarded_date = $_POST['ba_awarded_date'];
-							$ma_complition_date = $_POST['ma_complition_date'];
-							$ma_awarded_date = $_POST['ma_awarded_date'];
+                            // Query to update teacher details
+                            $query = "UPDATE teacher_info SET first_name = '$first_name' WHERE teacher_id = '$teacher_id'";
 
+                            // Execute the query
+                            $result = mysqli_query($con, $query);
 
+                            if ($result) {
+                                echo "Teacher details updated successfully.";
+                            } else {
+                                echo "Error updating teacher details: " . mysqli_error($con);
+                            }
+                        }
+                        ?>
 
-							// Query to update teacher details
-							$query = "UPDATE teacher_info SET 
-                    first_name = '$first_name', 
-                    middle_name = '$middle_name', 
-                    last_name = '$last_name', 
-                    email = '$email', 
-                    phone_no = '$phone_no', 
-                    teacher_status = '$teacher_status', 
-                    application_status = '$application_status', 
-                    cnic = '$cnic', 
-                    dob = '$dob', 
-                    other_phone = '$other_phone', 
-                    gender = '$gender', 
-                    permanent_address = '$permanent_address', 
-                    current_address = '$current_address', 
-                    place_of_birth = '$place_of_birth', 
-                    matric_complition_date = '$matric_complition_date', 
-                    matric_awarded_date = '$matric_awarded_date', 
-                    fa_complition_date = '$fa_complition_date', 
-                    fa_awarded_date = '$fa_awarded_date', 
-                    ba_complition_date = '$ba_complition_date', 
-                    ba_awarded_date = '$ba_awarded_date', 
-                    ma_complition_date = '$ma_complition_date', 
-                    ma_awarded_date = '$ma_awarded_date' 
-                    WHERE teacher_id = '$teacher_id'";
-
-							// Execute the query
-							$result = mysqli_query($con, $query);
-
-							if ($result) {
-								echo "Teacher details updated successfully.";
-							} else {
-								echo "Error updating teacher details: " . mysqli_error($con);
-							}
-						}
-						?>
-
-
-						<?php if (isset($teacherData)) { ?>
-							<div id="editTeacherSection">
-								<h2>Teacher Details</h2>
-								<form action="" method="POST">
-									<!-- Display teacher details here -->
-									<div class="form-group">
-										<label for="firstName">First Name:</label>
-										<input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="middleName">Middle Name:</label>
-										<input type="text" class="form-control" id="middleName" name="middle_name" value="<?php echo $teacherData['middle_name']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="lastName">Last Name:</label>
-										<input type="text" class="form-control" id="lastName" name="last_name" value="<?php echo $teacherData['last_name']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="email">Email:</label>
-										<input type="email" class="form-control" id="email" name="email" value="<?php echo $teacherData['email']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="phoneNo">Phone Number:</label>
-										<input type="tel" class="form-control" id="phoneNo" name="phone_no" value="<?php echo $teacherData['phone_no']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="teacherStatus">Teacher Status:</label>
-										<select class="form-control" id="teacherStatus" name="teacher_status">
-											<option value="Active" <?php echo ($teacherData['teacher_status'] === 'Active') ? 'selected' : ''; ?>>Active</option>
-											<option value="Inactive" <?php echo ($teacherData['teacher_status'] === 'Inactive') ? 'selected' : ''; ?>>Inactive</option>
-										</select>
-									</div>
-									<div class="form-group">
-										<label for="applicationStatus">Application Status:</label>
-										<select class="form-control" id="applicationStatus" name="application_status">
-											<option value="Pending" <?php echo ($teacherData['application_status'] === 'Pending') ? 'selected' : ''; ?>>Pending</option>
-											<option value="Approved" <?php echo ($teacherData['application_status'] === 'Approved') ? 'selected' : ''; ?>>Approved</option>
-											<option value="Rejected" <?php echo ($teacherData['application_status'] === 'Rejected') ? 'selected' : ''; ?>>Rejected</option>
-										</select>
-									</div>
-									<div class="form-group">
-										<label for="cnic">CNIC:</label>
-										<input type="text" class="form-control" id="cnic" name="cnic" value="<?php echo $teacherData['cnic']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="dob">Date of Birth:</label>
-										<input type="date" class="form-control" id="dob" name="dob" value="<?php echo $teacherData['dob']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="otherPhone">Other Phone:</label>
-										<input type="number" class="form-control" id="otherPhone" name="other_phone" value="<?php echo $teacherData['other_phone']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="gender">Gender:</label>
-										<select class="form-control" id="gender" name="gender">
-											<option value="Male" <?php echo ($teacherData['gender'] === 'Male') ? 'selected' : ''; ?>>Male</option>
-											<option value="Female" <?php echo ($teacherData['gender'] === 'Female') ? 'selected' : ''; ?>>Female</option>
-										</select>
-									</div>
-									<div class="form-group">
-										<label for="permanentAddress">Permanent Address:</label>
-										<input type="text" class="form-control" id="permanentAddress" name="permanent_address" value="<?php echo $teacherData['permanent_address']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="currentAddress">Current Address:</label>
-										<input type="text" class="form-control" id="currentAddress" name="current_address" value="<?php echo $teacherData['current_address']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="placeOfBirth">Place of Birth:</label>
-										<input type="text" class="form-control" id="placeOfBirth" name="place_of_birth" value="<?php echo $teacherData['place_of_birth']; ?>">
-									</div>
-									<div class="form-group">
-										<label for="matricCompletionDate">Matric/OLevel Completion Date:</label>
-										<input type="date" class="form-control" id="matricCompletionDate" name="matric_complition_date" value="<?php echo $teacherData['matric_complition_date']; ?>">
-									</div>
-
-
-
-
-
-									<!-- ... -->
-									<input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
-									<button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
-									<button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
-								</form>
-							</div>
-						<?php } ?>
-					</div>
-					<!-- Teacher Details Display -->
-					<div id="teacherDetails" style="display: none;">
-
-						<form action="update-teacher.php" method="POST" style="display: none;">
-							<h2>Teacher Details</h2>
-
-							<label for="firstName">First Name:</label>
-							<input type="text" class="form-control" id="firstName" name="first_name">
-
-							<!-- Add more fields for other details -->
-							<!-- ... -->
-							<button type="submit" class="btn btn-primary">Save Changes</button>
-						</form>
-					</div>
+  
+<?php if (isset($teacherData)) { ?>
+        <div id="editTeacherSection">
+            <h2>Teacher Details</h2>
+            <form action="" method="POST">
+                <!-- Display teacher details here -->
+                <div class="form-group">
+                    <label for="firstName">First Name:</label>
+                    <input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
+                </div>
+                <!-- Add more fields for other details -->
+                <!-- ... -->
+                <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
+                <button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+            </form>
+        </div>
+    <?php } ?>
+</div>
+                    <!-- Teacher Details Display -->
+                    <div id="teacherDetails" style="display: none;">
+                  
+                        <form action="update-teacher.php" method="POST" style="display: none;">
+						<h2>Teacher Details</h2>
+                            <div class="form-group">
+                                <label for="firstName">First Name:</label>
+                                <input type="text" class="form-control" id="firstName" name="first_name">
+                            </div>
+                            <!-- Add more fields for other details -->
+                            <!-- ... -->
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </form>
+                    </div>
 					<div class="row w-100">
 						<div class=" col-lg-6 col-md-6 col-sm-12 mt-1 ">
 							<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -722,16 +605,17 @@ if (isset($_POST['btn_save2'])) {
 				window.location.href = 'delete-function.php?teacher_id=' + teacher_id;
 			}
 		}
-	</script>
+		</script>
 
-	<script>
-		// Function to cancel the edit operation
-		function cancelEdit() {
-			$("#editTeacherSection").hide();
-			$("#teacherDetails").show();
-			$("#firstName").val(""); // Clear the input field
-		}
-	</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Function to cancel the edit operation
+    function cancelEdit() {
+        $("#editTeacherSection").hide();
+        $("#teacherDetails").show();
+        $("#firstName").val(""); // Clear the input field
+    }
+</script>
 
 	<script type="text/javascript" src="../bootstrap/js/jquery.min.js"></script>
 	<script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
