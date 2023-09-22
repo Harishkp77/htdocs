@@ -259,10 +259,29 @@ INSERT INTO `login` (`Role`, `user_id`, `Password`) VALUES
 ('Admin', 'admin', 'admin123'),
 ('Staff', 'staff', 'staff123'),
 ('Student', 'stud', 'stud123');
+('Parent', 'parent', 'p123');
 
 -- --------------------------------------------------------
+--- i have changed the above table----- --------------------
 
---
+CREATE TABLE `login` (
+  `Role` varchar(10) NOT NULL,
+  `user_id` varchar(30) NOT NULL,
+  `Password` varchar(30) NOT NULL,
+  `account` varchar(10) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+
+
+INSERT INTO `login` (`Role`, `user_id`, `Password`, `account`) VALUES
+('Admin', 'admin', 'admin123', 'Activate'),
+('Staff', 'staff', 'staff123', 'Activate'),
+('Student', 'stud', 'stud123', 'Activate'),
+('Parent', 'par', 'par123', 'Activate');
+
+----------------     --------------------   -----------------------
+-
 -- Table structure for table `mytable`
 --
 

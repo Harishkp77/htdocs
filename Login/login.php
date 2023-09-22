@@ -3,40 +3,35 @@
 session_start();
     require_once "../connection/connection.php"; 
     $message="Email Or Password Does Not Match";
-    if(isset($_POST["btnlogin"]))
-    {
-        $Role=$_POST["Role"];
-        $username=$_POST["email"];
-        $password=$_POST["password"];
-
-        $query="select * from login where user_id='$username' and Password='$password' and Role='$Role' ";
-        $result=mysqli_query($con,$query);
-        if (mysqli_num_rows($result)>0) {
-            while ($row=mysqli_fetch_array($result)) {
-                if ($row["Role"]=="Admin")
-                {
-                    $_SESSION['LoginAdmin']=$row["user_id"];
+    if (isset($_POST["btnlogin"])) {
+        $Role = $_POST["Role"];
+        $username = $_POST["email"];
+        $password = $_POST["password"];
+    
+        $query = "SELECT * FROM login WHERE user_id='$username' AND Password='$password' AND Role='$Role' AND account='Activate'";
+        $result = mysqli_query($con, $query);
+    
+        if (mysqli_num_rows($result) > 0) {
+            while ($row = mysqli_fetch_array($result)) {
+                if ($row["Role"] == "Admin") {
+                    $_SESSION['LoginAdmin'] = $row["user_id"];
                     header('Location: ../admin/admin-index.php');
-
-                }
-                else if ($row["Role"]=="Staff" and $row["account"]=="Activate")
-                {
-                    $_SESSION['LoginStaff']=$row["user_id"];
+                } else if ($row["Role"] == "Staff") {
+                    $_SESSION['LoginStaff'] = $row["user_id"];
                     header('Location: ../staff/staff-index.php');
-                }
-                else if ($row["Role"]=="Student" and $row["account"]=="Activate")
-                {
-                    $_SESSION['LoginStudent']=$row['user_id'];
+                } else if ($row["Role"] == "Student") {
+                    $_SESSION['LoginStudent'] = $row['user_id'];
                     header('Location: ../student/student-index.php');
+                } else if ($row["Role"] == "Parent") {
+                    $_SESSION['LoginParent'] = $row['user_id'];
+                    header('Location: ../parent/parent-index.php');
                 }
             }
-        }
-        else
-        { 
-            echo "<script>alert('username and Password Incorrect')</script>";
-            
+        } else { 
+            echo "<script>alert('Username and Password Incorrect or Account Not Activated')</script>";
         }
     }
+    
 ?>
 
 <!doctype html>
@@ -60,6 +55,7 @@ session_start();
                             <option value="Admin">Admin</option>
                             <option value="Staff">Staff</option>
                             <option value="Student">Student</option>
+                            <option value="Parent">Parent</option>
                             
                            <!--  <option value="Vice-Principal">Vice-Principal</option>
                             <option value="HOD">HOD</option>
