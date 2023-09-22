@@ -111,7 +111,6 @@ if (isset($_POST['btn_save'])) {
 }
 ?>
 
-
 <?php
 if (isset($_POST['btn_save2'])) {
 	$course_code = $_POST['course_code'];
@@ -137,20 +136,6 @@ if (isset($_POST['btn_save2'])) {
 ?>
 
 
-
-
-
-<!-- HTML form for searching teacher details -->
-
-
-
-
-
-
-
-<!--*********************** PHP code end from here for data insertion into database ******************************* -->
-
-
 <!doctype html>
 <html lang="en">
 
@@ -162,99 +147,97 @@ if (isset($_POST['btn_save2'])) {
 	<?php include('../common/common-header.php') ?>
 	<?php include('../common/admin-sidebar.php') ?>
 	<main role="main" class="col-xl-10 col-lg-9 col-md-8 ml-sm-auto px-md-4 mb-2 w-100">
-        <div class="sub-main">
-            <div class="text-center d-flex flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 text-white admin-dashboard pl-3">
-                <div class="d-flex">
-                    <h4 class="mr-5">Staff Management System</h4>
-                    <!-- Large modal for Add Staff -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Add Staff</button>
-                    <span style="margin-right: 10px;"></span>
-                    <!-- Large modal for Assign Courses -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg1">Assign Courses</button>
-                </div>
-            </div>
-            <div>
-                <div>
-                    <!-- Search Teacher Form -->
-                    <form action="" method="POST">
-                        <div class="form-group">
-                            <label for="teacherId">Enter Teacher ID:</label>
-                            <input type="text" class="form-control" id="teacherId" name="teacher_id" placeholder="Enter Teacher ID" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary" name="search_teacher">Search</button>
-                    </form>
-                    
-                    <!-- Display Teacher Edit Form -->
-                    <div id="updateMessage" class="mt-3">
-                        <?php
-                        // Check if the search form is submitted
-                        if (isset($_POST['search_teacher'])) {
-                            $teacher_id = $_POST['teacher_id'];
+		<div class="sub-main">
+			<div class="text-center d-flex flex-wrap flex-md-nowrap pt-3 pb-2 mb-3 text-white admin-dashboard pl-3">
+				<div class="d-flex">
+					<h4 class="mr-5">Staff Management System</h4>
+					<!-- Large modal for Add Staff -->
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">Add Staff</button>
+					<span style="margin-right: 10px;"></span>
+					<!-- Large modal for Assign Courses -->
+					<button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg1">Assign Courses</button>
+				</div>
+			</div>
+			<div>
+				<div>
+					<!-- Search Teacher Form -->
+					<form action="" method="POST" class="form-inline mt-3">
+						<label class="sr-only" for="teacherId">Enter Teacher ID:</label>
+						<input type="text" class="form-control mb-2 mr-sm-2" id="teacherId" name="teacher_id" placeholder="Enter Teacher ID" required>
 
-                            // Query the database to retrieve teacher details by teacher ID
-                            $query = "SELECT * FROM teacher_info WHERE teacher_id = '$teacher_id'";
-                            $result = mysqli_query($con, $query);
+						<button type="submit" class="btn btn-primary mb-2" name="search_teacher">Search</button>
+					</form>
 
-                            if ($result && mysqli_num_rows($result) > 0) {
-                                $teacherData = mysqli_fetch_assoc($result);
-                            } else {
-                                echo "Teacher not found.";
-                            }
-                        }
 
-                        // Check if the edit form is submitted
-                        if (isset($_POST['edit_teacher'])) {
-                            $teacher_id = $_POST['teacher_id'];
-                            $first_name = $_POST['first_name'];
-                            // Add more fields for other details
+					<!-- Display Teacher Edit Form -->
+					<div id="updateMessage" class="mt-3">
+						<?php
+						// Check if the search form is submitted
+						if (isset($_POST['search_teacher'])) {
+							$teacher_id = $_POST['teacher_id'];
 
-                            // Query to update teacher details
-                            $query = "UPDATE teacher_info SET first_name = '$first_name' WHERE teacher_id = '$teacher_id'";
+							// Query the database to retrieve teacher details by teacher ID
+							$query = "SELECT * FROM teacher_info WHERE teacher_id = '$teacher_id'";
+							$result = mysqli_query($con, $query);
 
-                            // Execute the query
-                            $result = mysqli_query($con, $query);
+							if ($result && mysqli_num_rows($result) > 0) {
+								$teacherData = mysqli_fetch_assoc($result);
+							} else {
+								echo "Teacher not found.";
+							}
+						}
 
-                            if ($result) {
-                                echo "Teacher details updated successfully.";
-                            } else {
-                                echo "Error updating teacher details: " . mysqli_error($con);
-                            }
-                        }
-                        ?>
+						// Check if the edit form is submitted
+						if (isset($_POST['edit_teacher'])) {
+							$teacher_id = $_POST['teacher_id'];
+							$first_name = $_POST['first_name'];
+							// Add more fields for other details
 
-  
-<?php if (isset($teacherData)) { ?>
-        <div id="editTeacherSection">
-            <h2>Teacher Details</h2>
-            <form action="" method="POST">
-                <!-- Display teacher details here -->
-                <div class="form-group">
-                    <label for="firstName">First Name:</label>
-                    <input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
-                </div>
-                <!-- Add more fields for other details -->
-                <!-- ... -->
-                <input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
-                <button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
-                <button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
-            </form>
-        </div>
-    <?php } ?>
-</div>
-                    <!-- Teacher Details Display -->
-                    <div id="teacherDetails" style="display: none;">
-                  
-                        <form action="update-teacher.php" method="POST" style="display: none;">
-						<h2>Teacher Details</h2>
-                            <div class="form-group">
-                                <label for="firstName">First Name:</label>
-                                <input type="text" class="form-control" id="firstName" name="first_name">
-                            </div>
-                            <!-- Add more fields for other details -->
-                            <!-- ... -->
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                        </form>
-                    </div>
+							// Query to update teacher details
+							$query = "UPDATE teacher_info SET first_name = '$first_name' WHERE teacher_id = '$teacher_id'";
+
+							// Execute the query
+							$result = mysqli_query($con, $query);
+
+							if ($result) {
+								echo "Teacher details updated successfully.";
+							} else {
+								echo "Error updating teacher details: " . mysqli_error($con);
+							}
+						}
+						?>
+
+						<?php if (isset($teacherData)) { ?>
+							<div id="editTeacherSection">
+								<h2>Teacher Details</h2>
+								<form action="" method="POST">
+									<!-- Display teacher details here -->
+									<div class="form-group">
+										<label for="firstName">First Name:</label>
+										<input type="text" class="form-control" id="firstName" name="first_name" value="<?php echo $teacherData['first_name']; ?>">
+									</div>
+									<!-- Add more fields for other details -->
+									<!-- ... -->
+									<input type="hidden" name="teacher_id" value="<?php echo $teacher_id; ?>">
+									<button type="submit" class="btn btn-primary" name="edit_teacher">Save Changes</button>
+									<button type="button" class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
+								</form>
+							</div>
+						<?php } ?>
+					</div>
+					<!-- Teacher Details Display -->
+					<div id="teacherDetails" style="display: none;">
+						<form action="update-teacher.php" method="POST" style="display: none;">
+							<h2>Teacher Details</h2>
+							<div class="form-group">
+								<label for="firstName">First Name:</label>
+								<input type="text" class="form-control" id="firstName" name="first_name">
+							</div>
+							<!-- Add more fields for other details -->
+							<!-- ... -->
+							<button type="submit" class="btn btn-primary">Save Changes</button>
+						</form>
+					</div>
 					<div class="row w-100">
 						<div class=" col-lg-6 col-md-6 col-sm-12 mt-1 ">
 							<div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
@@ -483,7 +466,6 @@ if (isset($_POST['btn_save2'])) {
 							<section class="mt-3">
 								<div class="row">
 									<div class="col-md-3 offset-9 pt-5 mb-2">
-
 										<div class="modal fade bd-example-modal-lg1" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
 											<div class="modal-dialog modal-lg">
 												<div class="modal-content">
@@ -568,8 +550,6 @@ if (isset($_POST['btn_save2'])) {
 									</div>
 								</div>
 
-
-
 								<table class="w-100 table-elements mb-5 table-three-tr" cellpadding="10">
 									<tr class="table-tr-head table-three text-white">
 										<th>Staff ID</th>
@@ -605,17 +585,17 @@ if (isset($_POST['btn_save2'])) {
 				window.location.href = 'delete-function.php?teacher_id=' + teacher_id;
 			}
 		}
-		</script>
+	</script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Function to cancel the edit operation
-    function cancelEdit() {
-        $("#editTeacherSection").hide();
-        $("#teacherDetails").show();
-        $("#firstName").val(""); // Clear the input field
-    }
-</script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script>
+		// Function to cancel the edit operation
+		function cancelEdit() {
+			$("#editTeacherSection").hide();
+			$("#teacherDetails").show();
+			$("#firstName").val(""); // Clear the input field
+		}
+	</script>
 
 	<script type="text/javascript" src="../bootstrap/js/jquery.min.js"></script>
 	<script type="text/javascript" src="../bootstrap/js/bootstrap.min.js"></script>
